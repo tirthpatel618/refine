@@ -28,7 +28,7 @@ Therefore require Auth - easy to use with emails? or regular email and password
                         What is scoring like? (+10 for every correct answer?)
 
                 Customizable:
-                    Customize what: Upper and lower bound numbers. ADD WHAT IS CUSTOM HERE. 
+                    Customize what: Upper and lower bound numbers. ADD WHAT IS CUSTOM HERE. Timed and infinite mode?
                     All of the customness is sent in req to the backend so that it can start to generate the numbers correctly
 
                     Will have to figure out Custom game later
@@ -40,11 +40,27 @@ Therefore require Auth - easy to use with emails? or regular email and password
                     (what about super big numbers? Maybe give options for using direction keys for 4 options)
                         but then how do you compute 4 options that look realistic as well
             Game page should also have leaderboards for the presets. You see them once you finish your game. 
-                See top 5, and then where you rank. 
+                See top 5, and then where you rank. Weekly and all time. 
+                Also your own leaderboard
+                CUSTOMIZED GAME MODE RESULTS ARE NOT STORED. You can see your results (50/54) at the end but thats it
+
+
+QUESTION-gen
+    very rule heavy, how can we optimize that. Random numbers have to change as well, how to make sure of that
+    is it bad to do it through random numbers and not a DB? Does it make it too expensive? 
 
 3. DB Design and websockets stuff
+    User profile 
+    Personal table for their scores for all games (or does that become too many tables?) -> figure out best way to do user leaderboards
+    One table per mode of game? or just one table per game(ex one table for addition, subtraction etc)
+        Table tracks user, score, game_mode. Will searching for leaderboards become too heavy though? Especially if you are searching only for a user
+        FIGURE OUT HOW WEBSOCKETS COME INTO PLAY HERE - esp for real time
+    What are good analytics structure
+    
+
 
 4. UI
+    How to balance between minimal and also intriguing? how do you make it cool but not too much?
 
             
 
