@@ -1,0 +1,50 @@
+FIRST MVP Version (not too much tracking/analytics. Not too many game modes)
+Stack:
+    ts for backend + go for problem gen logic (bc i want to use it, but is it feasible)
+    postgres/supabase for db 
+    ts with next in frontend? (and websockets but no clue how to do those yet)
+
+
+Need users for real time tracking 
+Therefore require Auth - easy to use with emails? or regular email and password
+
+1.  Auth
+
+2.  Pages 
+        Home page. straight into problems?
+            Grid like design with cells for addition, subtraction, multiplication, custom etc.
+
+        User page. 
+            Settings and preferences(does this really matter tho? What does it change)
+            Dashboard and analytics
+                Best times for each challenge played so far
+                ADD analytics that are neccesary HERE
+
+        Game page (same layout for each one)
+            When you press on the game, itll give you 2 options to choose the Game:
+                Preset Easy, difficult, hard -> where the backend logic will keep giving questions based on rules defined in backend.
+                    Here it will have to be timed, have to track that as well. How many correct in how much time. 
+                    Is that too many API calls? is it not fast enough? Do you evaluate correctness and scoring in the frontend? 
+                        What is scoring like? (+10 for every correct answer?)
+
+                Customizable:
+                    Customize what: Upper and lower bound numbers. ADD WHAT IS CUSTOM HERE. 
+                    All of the customness is sent in req to the backend so that it can start to generate the numbers correctly
+
+                    Will have to figure out Custom game later
+
+                Once you go into the game: 
+                    you have a timer on the top of the screen. End button on top right
+                    Simple UI. no game screen as that will be too complicated. Render the equation onto the screen in middle. 
+                    give a box for them to type it in. 
+                    (what about super big numbers? Maybe give options for using direction keys for 4 options)
+                        but then how do you compute 4 options that look realistic as well
+            Game page should also have leaderboards for the presets. You see them once you finish your game. 
+                See top 5, and then where you rank. 
+
+3. DB Design and websockets stuff
+
+4. UI
+
+            
+
