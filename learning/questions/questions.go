@@ -1,7 +1,7 @@
 package questions
 
 import (
-	"math/rand"
+	//"math/rand"
 )
 
 type Question struct {
@@ -28,6 +28,7 @@ func get_answer(op string, num1 int, num2 int) int {
 	return 0
 }
 
+/*
 func (q *Question) Generate_easy(op string) {
 	q.Level = 1
 	// to avoid any 0
@@ -53,3 +54,4 @@ func (q *Question) Generate_hard(op string) {
 	q.Operation = op
 	q.Answer = get_answer(op, q.Num1, q.Num2)
 }
+*/
