@@ -1,0 +1,14 @@
+
+
+Question Gen Logistics:
+    frontend will take either the customizations or preset mode 
+    then it willl send request to backend for the questions
+    go will batch produce questions and send to frontend
+    the frontend will read them off a queueu and store the user answers
+    frontend sends the answers to go to validate 
+    then when frotnend gets what it got right, it will display the score and what the user got wrong and the correct answer
+
+
+analytics:
+
+

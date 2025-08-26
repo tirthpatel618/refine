@@ -24,8 +24,11 @@ Therefore require Auth - easy to use with emails? or regular email and password
             When you press on the game, itll give you 2 options to choose the Game:
                 Preset Easy, difficult, hard -> where the backend logic will keep giving questions based on rules defined in backend.
                     Here it will have to be timed, have to track that as well. How many correct in how much time. 
-                    Is that too many API calls? is it not fast enough? Do you evaluate correctness and scoring in the frontend? 
-                        What is scoring like? (+10 for every correct answer?)
+                    Is that too many API calls if the backend is sending a question every time? is it not fast enough? 
+                        Debate is whether question gen should be done in backend and sent via API. But then would it be too many calls to get new questions? 
+                        Frontend question gen + validating + scoring might make it slow? But does making repeating API calls also not do the same and make it slow?
+                    Evaluate correctness and scoring in the frontend
+                    What is scoring like? (+10 for every correct answer?)
 
                 Customizable:
                     Customize what: Upper and lower bound numbers. ADD WHAT IS CUSTOM HERE. Timed and infinite mode?
@@ -38,7 +41,7 @@ Therefore require Auth - easy to use with emails? or regular email and password
                     Simple UI. no game screen as that will be too complicated. Render the equation onto the screen in middle. 
                     give a box for them to type it in. 
                     (what about super big numbers? Maybe give options for using direction keys for 4 options)
-                        but then how do you compute 4 options that look realistic as well
+                        but then how do you compute 4 options that look realistic as well. 
             Game page should also have leaderboards for the presets. You see them once you finish your game. 
                 See top 5, and then where you rank. Weekly and all time. 
                 Also your own leaderboard
@@ -46,7 +49,7 @@ Therefore require Auth - easy to use with emails? or regular email and password
 
 
 QUESTION-gen
-    very rule heavy, how can we optimize that. Random numbers have to change as well, how to make sure of that
+    very rule heavy, how can we optimize that. Random numbers have to change as well (no preset seed), how to make sure of that
     is it bad to do it through random numbers and not a DB? Does it make it too expensive? 
 
 3. DB Design and websockets stuff
@@ -57,8 +60,6 @@ QUESTION-gen
         FIGURE OUT HOW WEBSOCKETS COME INTO PLAY HERE - esp for real time
     What are good analytics structure
     
-
-
 4. UI
     How to balance between minimal and also intriguing? how do you make it cool but not too much?
 
