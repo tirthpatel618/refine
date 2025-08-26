@@ -1,0 +1,16 @@
+Figure out Auth part later
+
+
+FOR NOW:
+
+The Full webiste is under maintenance. For now, you can still practice a bit and customize
+- imo only cool rn if it has the sign up for updates. 
+
+Features to allow: 
+
+Customizable set. Post the customs to the backend, and then get questions from the backend 
+Frontend will visualize them, validate if they are correct or not, and run the timer
+
+Addition, Subtraction, multiplication, division, percentage - for now 
+
+Join email list as well. NO auth for now 
