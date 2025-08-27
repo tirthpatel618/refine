@@ -9,14 +9,14 @@ The Full webiste is under maintenance. For now, you can still practice a bit and
 Features to allow: 
 
 Customizable set. Post the customs to the backend, and then get questions from the backend 
-Frontend will visualize them, validate if they are correct or not(BACKEND NOW AT THE END), and run the timer
+Frontend will visualize them,  and run the timer
 
-Addition, Subtraction, multiplication, division, percentage - for now 
+Addition, Subtraction, multiplication, division, percentage, customs - for now 
 Choose which thing you want to do:
 Lets say addition, easy level
 So then the route becomes GET questions/ with body {mode='addition', level=1}
 Or subtraction custom min 78 max 890
-so then route : questions/ with body {mode='subtraction', level=4, min=78, max=890}
+so then route : GET questions/ with body {mode='subtraction', level=4, min=78, max=890}
 
 Then the backend gens a batch of questions and sends them. 
 
@@ -25,4 +25,4 @@ Sends a POST request to backend with questions/ {mode='addition', count={COUNT}}
 and then the backend returns the correct amount
 
 Join email list as well. NO auth for now 
-WIll fugure out this part later 
+Will fugure out this part later. not sure how to update from go to RDS. SHould it be frontend just sending it straight to the DB?
