@@ -3,8 +3,8 @@ package handlers
 import (
     "encoding/json"
     "net/http"
-    "refine-api/internal/generator"
-    "refine-api/internal/models"
+    "refine-temp-api/internal/generator"
+    "refine-temp-api/internal/models"
 )
 
 func HandleValidate(w http.ResponseWriter, r *http.Request) {

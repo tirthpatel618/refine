@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 	"hash/fnv"
-
+	"strings"
 )
 
 func CreateSeed() string {
@@ -50,14 +50,14 @@ func getRangeForDifficulty(difficulty int, operator string, config *models.Custo
         return config.Min, config.Max
     }
     
-    switch operator {
-		case "+":
+    switch strings.ToLower(operator) {
+		case "addition":
 			return Addition[difficulty].Min, Addition[difficulty].Max
-		case "-":
+		case "subtraction":
 			return Subtraction[difficulty].Min, Subtraction[difficulty].Max
-		case "×":
+		case "multiplication":
 			return Multiplication[difficulty].Min, Multiplication[difficulty].Max
-		case "÷":
+		case "division":
 			return Division[difficulty].Min, Division[difficulty].Max
 		default:
 			return 0, 0
