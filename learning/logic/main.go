@@ -1,7 +1,7 @@
 package main
 
 import (
-	"learning/questions"
+	"logic/questions"
 	"fmt"
 	"bufio"
 	"os"
