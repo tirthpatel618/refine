@@ -13,11 +13,20 @@ type CustomConfig struct {
 	Max int `json:"max"`
 }
 
-type Problem struct {
+//different for whats sent to frontend (without answer to be validated later)
+type Question struct {
+	ID	int
 	Num1 int 
 	Num2 int 
-	Operation string 
-	Answer int 
+	Operator string 
+}
+
+type Problem struct {
+    ID       int
+    Num1     int
+    Operator string
+    Num2     int
+    Answer   int
 }
 
 
