@@ -32,7 +32,6 @@ func main() {
 
 }
 
-
 func getQuestions(w http.ResponseWriter, r *http.Request) {
 	q := Question{}
 	q.Level = 3
