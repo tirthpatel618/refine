@@ -3,11 +3,11 @@ package handlers
 import (
     "encoding/json"
     "net/http"
-    "refine-temp-api/internal/generator"
-    "refine-temp-api/internal/models"
+    "refine-api/internal/generator"
+    "refine-api/internal/models"
 )
 
-func HandleGenerateProblems(w http.ResponseWriter, r *http.Request) {
+func HandleValidate(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
@@ -23,37 +23,43 @@ func HandleGenerateProblems(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    var req models.GenerateRequest
+    var req models.ValidateRequest
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, `{"error":"Invalid request body"}`, http.StatusBadRequest)
         return
     }
     
-    if req.Count <= 0 {
-        req.Count = 50
-    }
-    if req.Count > 200 {
-        req.Count = 200 // cap at 200 problems
-    }
-    if req.Difficulty <= 0 || req.Difficulty > 4 {
-        req.Difficulty = 1 // default to easy
-    }
-    if req.Mode == "" {
-        req.Mode = "addition"
+    if req.Seed == "" {
+        http.Error(w, `{"error":"Missing seed"}`, http.StatusBadRequest)
+        return
     }
     
-    seed := generator.CreateSeed()
-    problems := generator.GenerateWithSeed(seed, req.Mode, req.Difficulty, req.Count, req.Config)
-    questions := generator.ConvertToQuestions(problems)
-    
-    response := models.GenerateResponse{
-        Seed:     seed,
-        Problems: questions,
+    if len(req.Answers) == 0 {
+        http.Error(w, `{"error":"No answers provided"}`, http.StatusBadRequest)
+        return
     }
-
-	
+    
+    problemCount := len(req.Answers)
+    problems := generator.GenerateWithSeed(req.Seed, req.Mode, req.Difficulty, problemCount, req.Config)
+    
+    correct := 0
+    for i, userAnswer := range req.Answers {
+        if i < len(problems) && problems[i].Answer == userAnswer {
+            correct++
+        }
+    }
+    
+    score := correct * 10
+    
+    response := models.ValidateResponse{
+        Correct:  correct,
+        Total:    len(req.Answers),
+        Score:    score,
+    }
+    
     if err := json.NewEncoder(w).Encode(response); err != nil {
         http.Error(w, `{"error":"Failed to encode response"}`, http.StatusInternalServerError)
         return
     }
 }
+

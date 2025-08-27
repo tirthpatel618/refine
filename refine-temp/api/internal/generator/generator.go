@@ -62,6 +62,7 @@ func getRangeForDifficulty(difficulty int, operator string, config *models.Custo
 		default:
 			return 0, 0
 	}
+	
 }
 
 func getOperationFunc(mode string) func(*rand.Rand, int, int, int) models.Problem {
