@@ -1,11 +1,15 @@
 package models
 
-
 type GenerateRequest struct {
 	Mode string `json:"mode"`
-	Level int `json:"level"`
+	Difficulty int `json:"level"`
 	Count int `json:"count"`
 	Config     *CustomConfig `json:"config,omitempty"`
+}
+
+type GenerateResponse struct {
+    Seed     string     `json:"seed"`
+    Problems []Question `json:"problems"`
 }
 
 type CustomConfig struct {
@@ -27,6 +31,20 @@ type Problem struct {
     Operator string
     Num2     int
     Answer   int
+}
+
+type ValidateRequest struct {
+    Seed       string        `json:"seed"`
+    Mode       string        `json:"mode"`
+    Difficulty string        `json:"difficulty"`
+    Config     *CustomConfig `json:"config,omitempty"`
+    Answers    []int         `json:"answers"`
+}
+
+type ValidateResponse struct {
+    Correct  int     `json:"correct"`
+    Total    int     `json:"total"`
+    Score    int     `json:"score"`
 }
 
 
