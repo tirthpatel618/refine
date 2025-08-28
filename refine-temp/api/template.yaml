@@ -45,8 +45,8 @@ Resources:
 
       Environment:
         Variables:
-          DB_USER: postgres
-          DB_PASS: refine-db
+          DB_USER: arn:aws:secretsmanager:us-east-1:512795167537:secret:rds-db-credentials/db-EQOL7FH4SPDD2HGB3H76G43VDE/postgres/1756395922603-cg0308:SecretString:username::
+          DB_PASS: arn:aws:secretsmanager:us-east-1:512795167537:secret:rds-db-credentials/db-EQOL7FH4SPDD2HGB3H76G43VDE/postgres/1756395922603-cg0308:SecretString:password::
           DB_HOST: refine-db.cytc2qoyqsw0.us-east-1.rds.amazonaws.com
           DB_NAME: refine
           DB_PORT: "5432"
