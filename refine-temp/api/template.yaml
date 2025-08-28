@@ -51,12 +51,6 @@ Resources:
           DB_NAME: refine
           DB_PORT: "5432"
           DEBUG: "1"
-
-      #Policies:
-      #  - Statement:
-      #      - Effect: Allow
-      #        Action: secretsmanager:GetSecretValue
-      #        Resource: arn:aws:secretsmanager:us-east-1:512795167537:secret:rds-db-credentials/db-EQOL7FH4SPDD2HGB3H76G43VDE/postgres/1756395922603-cg0308
       Events:
         Root:
           Type: Api
@@ -73,6 +67,11 @@ Resources:
         Emails:
           Type: Api
           Properties: { Path: /emails,         Method: POST, RestApiId: !Ref Api }
+      #Policies:
+      #  - Statement:
+      #      - Effect: Allow
+      #        Action: secretsmanager:GetSecretValue
+      #        Resource: arn:aws:secretsmanager:us-east-1:512795167537:secret:rds-db-credentials/db-EQOL7FH4SPDD2HGB3H76G43VDE/postgres/1756395922603-cg0308
 
 Outputs:
   ApiUrl:
