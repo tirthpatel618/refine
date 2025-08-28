@@ -26,3 +26,17 @@ and then the backend returns the correct amount
 
 Join email list as well. NO auth for now 
 Will fugure out this part later. not sure how to update from go to RDS. SHould it be frontend just sending it straight to the DB?
+
+
+UI:
+
+Main text
+Title and Bold: Refine is still under development. 
+subtitle: You can check the progress out at this repository: "https://github.com/tirthpatel618/refine"
+
+To practice some mental math while you wait, you can do so here:
+Game Mode 
+
+To get notified when refine is available, enter your email here!
+
+Built by Tirth Patel (link to tirthpatel.me)

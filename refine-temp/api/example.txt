@@ -1,0 +1,14 @@
+curl -X POST "$REFINE_API_URL/api/problems" -H "Content-Type: application/json" \
+  -d '{"mode":"division","difficulty":3,"count":3}' | jq .
+
+curl -X POST "$REFINE_API_URL/api/validate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "seed": "1756408121360135442-8537373712029731635",
+    "mode": "division",
+    "difficulty": 3,
+    "answers": [4, 46, 3]
+  }' | jq .
+
+curl -s -X POST "$REFINE_API_URL/emails" -H "Content-Type: application/json" \                                  
+  -d '{"email":"example@gmail.com"}'
