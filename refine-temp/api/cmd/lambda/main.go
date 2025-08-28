@@ -44,6 +44,8 @@ func router(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIG
 
 	case path == "/api/validate" && strings.EqualFold(req.HTTPMethod, "POST"):
 		return handlers.HandleValidate(req, corsHeaders)
+	case path == "/emails" && strings.EqualFold(req.HTTPMethod, "POST"):
+		return handlers.HandleEmailSignup(req, corsHeaders)
 
 	case path == "/health" && strings.EqualFold(req.HTTPMethod, "GET"):
 		return events.APIGatewayProxyResponse{

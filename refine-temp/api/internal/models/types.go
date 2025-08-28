@@ -48,6 +48,13 @@ type ValidateResponse struct {
     Score    int     `json:"score"`
 }
 
+type EmailRequest struct {
+    Email string `json:"email"`
+}
 
+type EmailResponse struct {
+    Message string `json:"message"`
+    Success bool   `json:"success"`
+}
 
 
