@@ -1,6 +1,4 @@
 .aws-sam/
 *.zip
-*.yaml
-*.yml
 *.toml
-template.*
+
