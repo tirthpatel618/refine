@@ -1,6 +1,6 @@
 import type { GameConfig, GameSession, ValidationResponse, EmailResponse } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://your-api.amazonaws.com';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const difficultyMap = {
   'easy': 1,

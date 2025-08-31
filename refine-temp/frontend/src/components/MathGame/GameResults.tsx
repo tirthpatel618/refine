@@ -3,11 +3,10 @@ import type { ValidationResponse } from '../../types';
 
 interface GameResultsProps {
   result: ValidationResponse;
-  timeUsed: number;
   onPlayAgain: () => void;
 }
 
-const GameResults: React.FC<GameResultsProps> = ({ result, timeUsed, onPlayAgain }) => {
+const GameResults: React.FC<GameResultsProps> = ({ result, onPlayAgain }) => {
   const percentage = result.total > 0 ? Math.round((result.correct / result.total) * 100) : 0;
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center">
@@ -19,12 +18,6 @@ const GameResults: React.FC<GameResultsProps> = ({ result, timeUsed, onPlayAgain
         </div>
         <div className="text-2xl text-white/90">
           {percentage}% Correct
-        </div>
-        <div className="text-lg text-white/80">
-          Time: {Math.floor(timeUsed / 60)}:{(timeUsed % 60).toString().padStart(2, '0')}
-        </div>
-        <div className="text-xl text-white/90">
-          Score: {result.score}
         </div>
       </div>
 

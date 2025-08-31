@@ -106,7 +106,6 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
   }, [currentIndex, session.problems.length, isCompleted, answers.length]);
 
   const currentProblem = session.problems[currentIndex];
-  const operationSymbol = currentProblem.operation;
 
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
@@ -133,7 +132,7 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
         {currentProblem && !isCompleted ? (
           <>
             <div className="text-5xl font-bold text-white mb-8">
-              {currentProblem.num1} {operationSymbol} {currentProblem.num2} = ?
+              {currentProblem.num1} {currentProblem.operator} {currentProblem.num2} = ?
             </div>
 
             <input

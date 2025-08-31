@@ -57,7 +57,6 @@ const MathGame: React.FC = () => {
       {gameState === 'results' && gameResult && gameConfig && (
         <GameResults
           result={gameResult}
-          timeUsed={gameConfig.timeLimit}
           onPlayAgain={handlePlayAgain}
         />
       )}

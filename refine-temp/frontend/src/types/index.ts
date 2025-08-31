@@ -1,6 +1,6 @@
 export interface Problem {
     num1: number;
-    operation: '+' | '-' | '×' | '÷'
+    operator: '+' | '-' | '×' | '÷';
     num2: number;
 }
   
