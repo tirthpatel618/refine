@@ -8,10 +8,8 @@ import Footer from './components/Footer';
 const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 relative">
-      {/* Math symbols background */}
       <div className="math-background"></div>
 
-      {/* Main content */}
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-4xl">
         <Header />
         <EmailCapture />

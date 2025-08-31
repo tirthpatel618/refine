@@ -1,0 +1,58 @@
+.math-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.math-background::before {
+content: '';
+position: absolute;
+width: 100%;
+height: 100%;
+background-image: 
+    repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 35px,
+    rgba(255, 255, 255, 0.03) 35px,
+    rgba(255, 255, 255, 0.03) 70px
+    );
+}
+
+.math-background::after {
+content: '∑ π ∫ √ ∞ × ÷ = ± λ Δ θ ∑ π ∫ √ ∞ × ÷ = ± λ Δ θ';
+position: absolute;
+top: 0;
+left: 0;
+width: 200%;
+height: 200%;
+font-size: 3rem;
+font-weight: bold;
+color: rgba(255, 255, 255, 0.05);
+display: grid;
+grid-template-columns: repeat(12, 1fr);
+grid-template-rows: repeat(12, 1fr);
+transform: rotate(-15deg) translate(-25%, -25%);
+animation: floatSymbols 60s linear infinite;
+}
+
+@keyframes floatSymbols {
+0% {
+    transform: rotate(-15deg) translate(-25%, -25%);
+}
+100% {
+    transform: rotate(-15deg) translate(-20%, -20%);
+}
+}
+
+/* Each grid cell gets a symbol */
+.math-background::after > * {
+display: flex;
+align-items: center;
+justify-content: center;
+}
