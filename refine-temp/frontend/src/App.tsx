@@ -3,7 +3,7 @@ import Header from './components/Header';
 import EmailCapture from './components/EmailCapture';
 import MathGame from './components/MathGame';
 import Footer from './components/Footer';
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 //import './styles/mathBackground.css';
 
 const App: React.FC = () => {
