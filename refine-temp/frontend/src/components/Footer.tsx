@@ -3,7 +3,7 @@ import React from 'react';
 const Footer: React.FC = () => {
   return (
     <footer className="text-center text-white/60 text-sm mt-12">
-      Built by{' '}
+      built by{' '}
       <a
         href="https://tirthpatel.me"
         target="_blank"

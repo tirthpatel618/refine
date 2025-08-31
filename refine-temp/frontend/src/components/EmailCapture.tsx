@@ -36,14 +36,14 @@ const EmailCapture: React.FC = () => {
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-12">
       <h2 className="text-2xl font-semibold text-white mb-4">
-        To get notified when Refine is available, enter your email here!
+        to get notified when refine is available, enter your email here:
       </h2>
       <div className="flex flex-col sm:flex-row gap-4">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="your@email.com"
           className="flex-1 px-4 py-3 rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50"
           disabled={status === 'loading'}

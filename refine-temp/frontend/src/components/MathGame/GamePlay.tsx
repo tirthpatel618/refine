@@ -15,7 +15,6 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
   const [timeLeft, setTimeLeft] = useState(config.timeLimit);
   const [isCompleted, setIsCompleted] = useState(false);
   
-  // Use refs to access current values in timer without re-creating interval
   const answersRef = useRef<number[]>([]);
   const isCompletedRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
