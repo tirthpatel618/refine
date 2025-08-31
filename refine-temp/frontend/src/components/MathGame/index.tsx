@@ -10,14 +10,12 @@ const MathGame: React.FC = () => {
   const [gameConfig, setGameConfig] = useState<GameConfig | null>(null);
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
   const [gameResult, setGameResult] = useState<ValidationResponse | null>(null);
-  const [startTime, setStartTime] = useState<number>(0);
 
   const handleStartGame = async (config: GameConfig) => {
     try {
       const session = await api.getProblems(config);
       setGameConfig(config);
       setGameSession(session);
-      setStartTime(Date.now());
       setGameState('playing');
     } catch (error) {
       console.error('Failed to start game:', error);
@@ -27,8 +25,6 @@ const MathGame: React.FC = () => {
 
   const handleGameComplete = async (answers: number[]) => {
     if (!gameSession || !gameConfig) return;
-
-    const timeUsed = Math.floor((Date.now() - startTime) / 1000);
     
     try {
       const result = await api.validateAnswers(gameSession.seed, gameConfig, answers);

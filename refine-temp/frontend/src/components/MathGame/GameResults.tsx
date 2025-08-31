@@ -9,8 +9,6 @@ interface GameResultsProps {
 
 const GameResults: React.FC<GameResultsProps> = ({ result, timeUsed, onPlayAgain }) => {
   const percentage = result.total > 0 ? Math.round((result.correct / result.total) * 100) : 0;
-  const questionsPerMinute = result.total > 0 ? (result.total / (timeUsed / 60)).toFixed(1) : '0';
-
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-center">
       <h3 className="text-3xl font-bold text-white mb-6">Game Complete!</h3>
