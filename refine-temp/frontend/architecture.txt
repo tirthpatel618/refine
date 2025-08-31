@@ -1,0 +1,17 @@
+src/
+├── App.tsx                 
+├── Main.tsx                
+├── components/
+│   ├── Header.tsx
+│   ├── EmailCapture.tsx
+│   ├── MathGame/
+│       ├── index.tsx          // Main game container
+│       ├── GameConfig.tsx     // Difficulty selector
+│       ├── GamePlay.tsx       // Active game with timer
+│       └── GameResults.tsx    // Score display
+├── types/
+│   └── index.ts           // TypeScript interfaces
+├── styles/
+│   └── mathBackground.css // Math symbols grid background
+└── services/
+    └── api.ts             // API calls to backend

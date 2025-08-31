@@ -1,4 +1,5 @@
 .aws-sam/
 *.zip
 *.toml
-
+.env
+node_modules/
