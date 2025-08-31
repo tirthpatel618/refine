@@ -1,30 +1,27 @@
-import { useState } from 'react'
+import React from 'react';
+import Header from './components/Header';
+import EmailCapture from './components/EmailCapture';
+import MathGame from './components/MathGame';
+import Footer from './components/Footer';
+//import './styles/mathBackground.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-        </a>
-        <a href="https://react.dev" target="_blank">
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 relative">
+      {/* Math symbols background */}
+      <div className="math-background"></div>
 
-export default App
+      {/* Main content */}
+      <div className="relative z-10 container mx-auto px-4 py-12 max-w-4xl">
+        <Header />
+        <EmailCapture />
+        <div className="mb-12">
+          <MathGame />
+        </div>
+        <Footer />
+      </div>
+    </div>
+  );
+};
+
+export default App;

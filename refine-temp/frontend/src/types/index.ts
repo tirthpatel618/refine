@@ -11,7 +11,7 @@ export interface Problem {
   
   export interface GameConfig {
     mode: 'addition' | 'subtraction' | 'multiplication' | 'division';
-    difficulty: 1 | 2 | 3 | 4;
+    difficulty: 'easy' | 'medium' | 'hard' | 'custom';
     customConfig?: {
       min: number;
       max: number;

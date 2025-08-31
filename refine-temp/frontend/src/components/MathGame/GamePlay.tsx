@@ -1,0 +1,148 @@
+import React, { useState, useEffect, useRef } from 'react';
+import type { GameSession, GameConfig } from '../../types';
+
+interface GamePlayProps {
+  session: GameSession;
+  config: GameConfig;
+  onComplete: (answers: number[]) => void;
+}
+
+const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [currentAnswer, setCurrentAnswer] = useState('');
+  const [timeLeft, setTimeLeft] = useState(config.timeLimit);
+  const [isCompleted, setIsCompleted] = useState(false);
+  
+  // Use refs to access current values in timer without re-creating interval
+  const answersRef = useRef<number[]>([]);
+  const isCompletedRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  
+  // Keep refs updated
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+  
+  useEffect(() => {
+    isCompletedRef.current = isCompleted;
+  }, [isCompleted]);
+  
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+  
+  // Timer effect - only runs once on mount
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (!isCompletedRef.current) {
+            isCompletedRef.current = true;
+            setIsCompleted(true);
+            // Use ref to get current answers
+            onCompleteRef.current(answersRef.current);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []); // Empty dependency array - timer never recreates
+
+  const handleSubmit = () => {
+    if (isCompleted || currentAnswer.trim() === '') return;
+
+    const answer = Number(currentAnswer);
+    const newAnswers = [...answers, answer];
+    setAnswers(newAnswers);
+    setCurrentAnswer('');
+
+    // Move to next question if available
+    if (currentIndex < session.problems.length - 1 && timeLeft > 0) {
+      setCurrentIndex(currentIndex + 1);
+    } else if (timeLeft > 0) {
+      // All questions answered before time up
+      setIsCompleted(true);
+      isCompletedRef.current = true;
+      onComplete(newAnswers);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isCompleted && currentAnswer.trim() !== '') {
+      handleSubmit();
+    }
+  };
+
+  // Check if we've run out of questions
+  useEffect(() => {
+    if (currentIndex >= session.problems.length && !isCompleted) {
+      setIsCompleted(true);
+      isCompletedRef.current = true;
+      onComplete(answers);
+    }
+  }, [currentIndex, session.problems.length, isCompleted, answers, onComplete]);
+
+  const currentProblem = session.problems[currentIndex];
+  const operationSymbol = currentProblem.operation;
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
+      <div className="text-center">
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-white">
+            Questions Answered: <span className="font-bold">{answers.length}</span>
+          </div>
+          <div className="text-2xl font-bold text-white">
+            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+          </div>
+        </div>
+
+        {currentProblem && !isCompleted ? (
+          <>
+            <div className="text-5xl font-bold text-white mb-8">
+              {currentProblem.num1} {operationSymbol} {currentProblem.num2} = ?
+            </div>
+
+            <input
+              type="number"
+              value={currentAnswer}
+              onChange={(e) => setCurrentAnswer(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Your answer"
+              className="w-64 px-6 py-4 text-2xl text-center rounded-lg bg-white/90 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 mb-6"
+              autoFocus
+              disabled={isCompleted}
+            />
+
+            <div>
+              <button
+                onClick={handleSubmit}
+                disabled={isCompleted || currentAnswer.trim() === ''}
+                className="px-12 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Submit Answer
+              </button>
+            </div>
+
+            {currentAnswer.trim() === '' && (
+              <p className="text-white/70 text-sm mt-4">
+                Enter an answer to continue
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="text-3xl font-bold text-white">
+            {isCompleted ? "Time's up!" : "Loading..."}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GamePlay;
