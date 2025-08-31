@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { GameSession, GameConfig } from '../../types';
 
+
 interface GamePlayProps {
   session: GameSession;
   config: GameConfig;
@@ -18,6 +19,8 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
   const answersRef = useRef<number[]>([]);
   const isCompletedRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   
   // Keep refs updated
   useEffect(() => {
@@ -34,10 +37,10 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
   
   // Timer effect - only runs once on mount
   useEffect(() => {
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          if (timerRef.current) clearInterval(timerRef.current);
           if (!isCompletedRef.current) {
             isCompletedRef.current = true;
             setIsCompleted(true);
@@ -50,7 +53,9 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, []); // Empty dependency array - timer never recreates
 
   const handleSubmit = () => {
@@ -66,10 +71,25 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
       setCurrentIndex(currentIndex + 1);
     } else if (timeLeft > 0) {
       // All questions answered before time up
-      setIsCompleted(true);
-      isCompletedRef.current = true;
-      onComplete(newAnswers);
+      handleEndGame(newAnswers);
     }
+  };
+
+  const handleEndGame = (finalAnswers?: number[]) => {
+    if (isCompleted) return;
+    
+    // Clear the timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    setIsCompleted(true);
+    isCompletedRef.current = true;
+    
+    // Use provided answers or current answers
+    const answersToSubmit = finalAnswers || answers;
+    onComplete(answersToSubmit);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -80,12 +100,10 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
 
   // Check if we've run out of questions
   useEffect(() => {
-    if (currentIndex >= session.problems.length && !isCompleted) {
-      setIsCompleted(true);
-      isCompletedRef.current = true;
-      onComplete(answers);
+    if (currentIndex >= session.problems.length && !isCompleted && answers.length > 0) {
+      handleEndGame();
     }
-  }, [currentIndex, session.problems.length, isCompleted, answers, onComplete]);
+  }, [currentIndex, session.problems.length, isCompleted, answers.length]);
 
   const currentProblem = session.problems[currentIndex];
   const operationSymbol = currentProblem.operation;
@@ -97,8 +115,18 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
           <div className="text-white">
             Questions Answered: <span className="font-bold">{answers.length}</span>
           </div>
-          <div className="text-2xl font-bold text-white">
-            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+          <div className="flex items-center gap-4">
+            <div className="text-2xl font-bold text-white">
+              {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+            </div>
+            {answers.length > 0 && !isCompleted && (
+              <button
+                onClick={() => handleEndGame()}
+                className="px-4 py-2 bg-red-500/80 text-white text-sm font-semibold rounded-lg hover:bg-red-500 transition-colors"
+              >
+                End Game
+              </button>
+            )}
           </div>
         </div>
 
@@ -128,16 +156,10 @@ const GamePlay: React.FC<GamePlayProps> = ({ session, config, onComplete }) => {
                 Submit Answer
               </button>
             </div>
-
-            {currentAnswer.trim() === '' && (
-              <p className="text-white/70 text-sm mt-4">
-                Enter an answer to continue
-              </p>
-            )}
           </>
         ) : (
           <div className="text-3xl font-bold text-white">
-            {isCompleted ? "Time's up!" : "Loading..."}
+            {isCompleted ? "Game Ended!" : "Loading..."}
           </div>
         )}
       </div>

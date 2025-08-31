@@ -2,14 +2,14 @@ export interface Problem {
     num1: number;
     operation: '+' | '-' | '×' | '÷'
     num2: number;
-  }
+}
   
-  export interface GameSession {
+export interface GameSession {
     seed: string;
     problems: Problem[];
-  }
+}
   
-  export interface GameConfig {
+export interface GameConfig {
     mode: 'addition' | 'subtraction' | 'multiplication' | 'division';
     difficulty: 'easy' | 'medium' | 'hard' | 'custom';
     customConfig?: {
@@ -17,15 +17,15 @@ export interface Problem {
       max: number;
     };
     timeLimit: number;
-  }
+}
   
-  export interface ValidationResponse {
+export interface ValidationResponse {
     correct: number;
     total: number;
     score: number;
-  }
+}
   
-  export interface EmailResponse {
+export interface EmailResponse {
     success: boolean;
     message: string;
-  }
+}
