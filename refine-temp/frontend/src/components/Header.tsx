@@ -12,7 +12,14 @@ const Header: React.FC = () => {
         />
       </h1>
       <p className="text-xl text-white/90">
-        is going through some maintenance.
+        is going through some{' '}
+        <a 
+          href="https://github.com/tirthpatel618/refine" 
+          className="text-blue-400 hover:text-blue-300 underline transition-colors duration-200"
+        >
+          maintenance
+        </a>
+        .
       </p>
     </div>
   );
