@@ -7,13 +7,15 @@ export default function Header() {
 
   return (
     <header className="border-b border-gray-200 bg-white">
-      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center gap-6">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src="/refine-nobg.png" alt="refine" className="h-7 w-7" />
           <span className="text-lg font-semibold text-gray-900">refine</span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <MusicPlayer />
+
+        <nav className="flex items-center gap-4 shrink-0 ml-auto">
           <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
             Play
           </Link>
@@ -48,11 +50,6 @@ export default function Header() {
               </Link>
             </>
           )}
-
-          {/* Divider */}
-          <div className="w-px h-5 bg-gray-200" />
-
-          <MusicPlayer />
         </nav>
       </div>
     </header>
