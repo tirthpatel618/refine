@@ -71,6 +71,49 @@ func (s *Store) GetUserByID(id int64) (*models.User, error) {
 	return &user, nil
 }
 
+func (s *Store) GetPasswordHash(userID int64) (string, error) {
+	ctx, cancel := s.ctx()
+	defer cancel()
+
+	var hash string
+	err := s.DB.QueryRowContext(ctx,
+		`SELECT password_hash FROM users WHERE id = $1`, userID,
+	).Scan(&hash)
+	return hash, err
+}
+
+func (s *Store) UpdatePassword(userID int64, newHash string) error {
+	ctx, cancel := s.ctx()
+	defer cancel()
+
+	_, err := s.DB.ExecContext(ctx,
+		`UPDATE users SET password_hash = $1 WHERE id = $2`, newHash, userID)
+	return err
+}
+
+func (s *Store) UpdateUsername(userID int64, newUsername string) error {
+	ctx, cancel := s.ctx()
+	defer cancel()
+
+	_, err := s.DB.ExecContext(ctx,
+		`UPDATE users SET username = $1 WHERE id = $2`, newUsername, userID)
+	return err
+}
+
+func (s *Store) DeleteUser(userID int64) error {
+	ctx, cancel := s.ctx()
+	defer cancel()
+
+	// Delete game sessions first (FK constraint)
+	if _, err := s.DB.ExecContext(ctx,
+		`DELETE FROM game_sessions WHERE user_id = $1`, userID); err != nil {
+		return err
+	}
+	_, err := s.DB.ExecContext(ctx,
+		`DELETE FROM users WHERE id = $1`, userID)
+	return err
+}
+
 // --- Email signups ---
 
 func (s *Store) InsertEmail(email string) error {

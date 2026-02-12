@@ -121,4 +121,23 @@ export const api = {
   getLeaderboard(mode: string, difficulty: number, timeLimit: number): Promise<LeaderboardResponse> {
     return request(`/api/leaderboard?mode=${mode}&difficulty=${difficulty}&time_limit=${timeLimit}`);
   },
+
+  // Account settings
+  changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    return request('/api/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    });
+  },
+
+  changeUsername(username: string): Promise<void> {
+    return request('/api/auth/username', {
+      method: 'PUT',
+      body: JSON.stringify({ username }),
+    });
+  },
+
+  deleteAccount(): Promise<void> {
+    return request('/api/auth/account', { method: 'DELETE' });
+  },
 };

@@ -65,7 +65,7 @@ func main() {
 	r.Use(middleware.Timeout(30 * time.Second))
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{frontendURL},
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Origin", "Accept"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -91,6 +91,9 @@ func main() {
 		r.Use(handlers.AuthMiddleware)
 
 		r.Get("/api/auth/me", handlers.GetCurrentUser(store))
+		r.Put("/api/auth/password", handlers.ChangePassword(store))
+		r.Put("/api/auth/username", handlers.ChangeUsername(store))
+		r.Delete("/api/auth/account", handlers.DeleteAccount(store))
 		r.Post("/api/sessions", handlers.SaveGameSession(store))
 		r.Get("/api/stats", handlers.GetUserStats(store))
 		r.Get("/api/leaderboard", handlers.GetLeaderboard(store))

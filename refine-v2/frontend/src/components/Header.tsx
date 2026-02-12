@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import MusicPlayer from './MusicPlayer';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -12,24 +13,27 @@ export default function Header() {
           <span className="text-lg font-semibold text-gray-900">refine</span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-4">
           <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
             Play
           </Link>
           {user ? (
             <>
+              <Link to="/leaderboard" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                Leaderboard
+              </Link>
               <Link to="/dashboard" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Dashboard
               </Link>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">{user.username}</span>
-                <button
-                  onClick={logout}
-                  className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  Log out
-                </button>
-              </div>
+              <Link to="/settings" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                {user.username}
+              </Link>
+              <button
+                onClick={logout}
+                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Log out
+              </button>
             </>
           ) : (
             <>
@@ -44,6 +48,11 @@ export default function Header() {
               </Link>
             </>
           )}
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-gray-200" />
+
+          <MusicPlayer />
         </nav>
       </div>
     </header>

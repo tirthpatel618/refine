@@ -37,20 +37,25 @@ export default function MathGame({ mode }: MathGameProps) {
     if (!session || !config) return;
 
     const validation = await api.validateAnswers(session.seed, config, answers);
+
+    // Save session before showing results so leaderboard includes this game
+    if (user && config.difficulty !== 'custom') {
+      try {
+        await api.saveGameSession({
+          mode: config.mode,
+          difficulty: difficultyMap[config.difficulty],
+          score: validation.score,
+          correct: validation.correct,
+          total: validation.total,
+          time_limit: config.timeLimit,
+        });
+      } catch {
+        // Don't block results if save fails
+      }
+    }
+
     setResult(validation);
     setPhase('results');
-
-    // Auto-save session if logged in and not custom difficulty
-    if (user && config.difficulty !== 'custom') {
-      api.saveGameSession({
-        mode: config.mode,
-        difficulty: difficultyMap[config.difficulty],
-        score: validation.score,
-        correct: validation.correct,
-        total: validation.total,
-        time_limit: config.timeLimit,
-      }).catch(() => {}); // fire-and-forget
-    }
   };
 
   const handlePlayAgain = () => {

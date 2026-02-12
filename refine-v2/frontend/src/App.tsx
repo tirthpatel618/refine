@@ -6,6 +6,8 @@ import PlayPage from './pages/PlayPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
@@ -16,9 +18,19 @@ export default function App() {
         <Route path="/play/:mode" element={<PlayPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/leaderboard" element={
+          <ProtectedRoute>
+            <LeaderboardPage />
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         } />
       </Routes>

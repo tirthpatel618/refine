@@ -76,6 +76,15 @@ type AuthResponse struct {
 	User User `json:"user"`
 }
 
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+type ChangeUsernameRequest struct {
+	Username string `json:"username"`
+}
+
 // --- Email signup ---
 
 type EmailRequest struct {
