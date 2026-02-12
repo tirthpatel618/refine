@@ -1,0 +1,16 @@
+[Unit]
+Description=Refine API Server
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=refine
+Group=refine
+WorkingDirectory=/opt/refine
+EnvironmentFile=/opt/refine/.env
+ExecStart=/opt/refine/refine-api
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
