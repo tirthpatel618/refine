@@ -1,0 +1,317 @@
+REFINE v2 — Architecture Spec
+==============================
+
+1. OVERVIEW
+-----------
+Refine is a mental math practice app. Users pick an operation, difficulty,
+and time limit, then solve generated problems against a timer.
+
+v2 adds: user accounts, game session persistence, stats/analytics,
+and leaderboards. The backend migrates from AWS Lambda to a single
+EC2 instance running a standard Go HTTP server.
+
+
+2. COMPUTE & INFRASTRUCTURE
+----------------------------
+                ┌──────────────────────────────────┐
+                │  EC2 t4g.micro (ARM64, ~$6/mo)   │
+                │                                   │
+                │  ┌─────────┐    ┌──────────────┐ │
+  HTTPS ──────▶ │  │  Caddy   │───▶│  Go server   │ │
+  (port 443)    │  │ (reverse │    │  (:8080)     │ │
+                │  │  proxy + │    └──────┬───────┘ │
+                │  │  static) │           │         │
+                │  └─────────┘    ┌──────▼───────┐ │
+                │                 │  PostgreSQL   │ │
+                │                 │  (local)      │ │
+                │                 └──────────────┘ │
+                └──────────────────────────────────┘
+
+- Caddy: auto-SSL via Let's Encrypt, serves frontend static files from
+  /opt/refine/frontend/, reverse proxies /api/* and /emails and /health
+  to Go on :8080.
+- PostgreSQL: installed on the same instance. $0 extra cost.
+- Backups: daily pg_dump to S3 via cron.
+- Go binary: built for linux/arm64, managed by systemd.
+
+
+3. DATABASE SCHEMA
+------------------
+
+  ┌──────────────────────────────────────────────┐
+  │ users                                        │
+  ├──────────────────────────────────────────────┤
+  │ id            BIGSERIAL PRIMARY KEY          │
+  │ email         TEXT UNIQUE NOT NULL           │
+  │ username      TEXT UNIQUE NOT NULL           │
+  │ password_hash TEXT NOT NULL                  │
+  │ created_at    TIMESTAMPTZ DEFAULT now()      │
+  └──────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────┐
+  │ game_sessions                                │
+  ├──────────────────────────────────────────────┤
+  │ id         BIGSERIAL PRIMARY KEY             │
+  │ user_id    BIGINT REFERENCES users(id)       │
+  │ mode       TEXT NOT NULL                     │
+  │             (addition/subtraction/           │
+  │              multiplication/division)        │
+  │ difficulty INT NOT NULL  (1, 2, 3 only)      │
+  │ score      INT NOT NULL                      │
+  │ correct    INT NOT NULL                      │
+  │ total      INT NOT NULL                      │
+  │ time_limit INT NOT NULL                      │
+  │ created_at TIMESTAMPTZ DEFAULT now()         │
+  └──────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────┐
+  │ email_signups  (existing, unchanged)         │
+  ├──────────────────────────────────────────────┤
+  │ id         BIGSERIAL PRIMARY KEY             │
+  │ email      TEXT UNIQUE NOT NULL              │
+  │ created_at TIMESTAMPTZ DEFAULT now()         │
+  └──────────────────────────────────────────────┘
+
+  Indexes:
+  - idx_game_sessions_leaderboard ON game_sessions(mode, difficulty, score DESC)
+  - idx_game_sessions_user ON game_sessions(user_id, mode, difficulty)
+
+
+4. AUTHENTICATION
+-----------------
+Method: email + password (bcrypt hashing).
+Session: JWT stored in HTTP-only, Secure, SameSite=Lax cookie.
+Token expiry: 7 days.
+JWT payload: { user_id, username, exp }.
+Secret: JWT_SECRET env var (HS256 signing).
+
+Flow:
+  Signup → validate email/username/password → bcrypt hash → INSERT user
+         → generate JWT → Set-Cookie → return user object
+
+  Login  → lookup by email → bcrypt compare → generate JWT → Set-Cookie
+
+  Logout → Set-Cookie with MaxAge=0 (clears cookie)
+
+  Auth check → read cookie → validate JWT → inject claims into request context
+
+Google OAuth: deferred to a later phase.
+
+
+5. API ENDPOINTS
+----------------
+Method  Path                        Auth    Purpose
+──────  ──────────────────────────  ──────  ─────────────────────────────
+GET     /health                     No      Health check
+POST    /api/problems               No      Generate problems
+POST    /api/validate               No      Validate answers
+POST    /emails                     No      Email signup (legacy)
+POST    /api/auth/signup            No      Create account + set JWT cookie
+POST    /api/auth/login             No      Login + set JWT cookie
+POST    /api/auth/logout            No      Clear JWT cookie
+GET     /api/auth/me                Yes     Get current user from cookie
+POST    /api/sessions               Yes     Save game session
+GET     /api/stats                  Yes     User stats + recent games
+GET     /api/leaderboard            Yes     Global top 5 + personal top 5
+         ?mode=&difficulty=
+
+Auth middleware: applied only to routes marked "Yes" above.
+Non-auth routes work identically for logged-in and anonymous users.
+
+
+6. PROBLEM GENERATION (UNCHANGED)
+----------------------------------
+Seed-based stateless validation using FNV64a hash.
+  1. Frontend requests problems → backend generates seed, creates problems
+  2. Frontend receives problems + seed (answers stripped)
+  3. User plays, frontend collects answers
+  4. Frontend sends seed + answers back → backend regenerates problems
+     from seed and compares answers
+  5. No server-side session storage needed for game logic
+
+Generator package (internal/generator/) is reused as-is.
+Operations: addition, subtraction, multiplication, division.
+Difficulties: 1 (easy), 2 (medium), 3 (hard), 4 (custom ranges).
+
+
+7. GAME SESSION TRACKING
+-------------------------
+When a logged-in user finishes a game with difficulty 1/2/3:
+  - Frontend auto-calls POST /api/sessions after validation succeeds
+  - Backend stores: user_id, mode, difficulty, score, correct, total, time_limit
+  - Fire-and-forget on the frontend (failure doesn't affect the game)
+
+Custom difficulty (4) games are NOT saved — they can't be compared
+fairly on leaderboards.
+
+Anonymous users' games are NOT saved.
+
+
+8. LEADERBOARD
+--------------
+All-time only (no time-windowed leaderboards).
+
+GET /api/leaderboard?mode=addition&difficulty=1
+
+Response:
+  {
+    global: [                    // Top 5 scores across all users
+      { rank, username, score, correct, total, time_limit, played_at }
+    ],
+    personal: [                  // Top 5 scores for the requesting user
+      { rank, score, correct, total, time_limit, played_at }
+    ]
+  }
+
+SQL for global: SELECT ... ORDER BY score DESC LIMIT 5
+SQL for personal: SELECT ... WHERE user_id = $1 ORDER BY score DESC LIMIT 5
+
+
+9. USER STATS / DASHBOARD
+--------------------------
+GET /api/stats
+
+Response:
+  {
+    stats: [                     // Aggregates grouped by mode + difficulty
+      { mode, difficulty, games_played, best_score, avg_score, avg_accuracy }
+    ],
+    recent_games: [              // Last 20 games across all modes
+      { mode, difficulty, score, correct, total, time_limit, played_at }
+    ]
+  }
+
+
+10. FRONTEND ARCHITECTURE
+--------------------------
+React 19 + TypeScript + Vite + Tailwind + shadcn/ui conventions.
+
+Router: react-router-dom with these routes:
+  /           → PlayPage (MathGame)    — no auth required
+  /play       → PlayPage (MathGame)    — no auth required
+  /login      → LoginPage             — no auth required
+  /signup     → SignupPage            — no auth required
+  /dashboard  → DashboardPage         — auth required (redirect to /login)
+
+Auth state: React context (AuthContext) with useAuth() hook.
+  - On mount: calls GET /api/auth/me to check for existing session cookie
+  - Provides: user, login(), signup(), logout(), isLoading
+
+All fetch calls include `credentials: 'include'` to send cookies.
+
+Header: shows username + logout when logged in; login/signup links when not.
+
+Game results: shows leaderboard below score (only for logged-in,
+non-custom games).
+
+
+11. BACKEND TECH CHOICES
+-------------------------
+Router:         chi/v5 (lightweight, stdlib-compatible, middleware support)
+Auth:           golang-jwt/jwt/v5 (JWT generation/validation)
+Password:       golang.org/x/crypto/bcrypt
+Database:       lib/pq (PostgreSQL driver, already in use)
+CORS:           chi/cors middleware
+
+No ORM — raw SQL queries in a Store struct.
+No Lambda dependencies — pure net/http handlers.
+
+
+12. PROJECT STRUCTURE (refine-v2/)
+-----------------------------------
+refine-v2/
+├── api/
+│   ├── cmd/server/main.go          # Chi HTTP server entry point
+│   ├── internal/
+│   │   ├── auth/jwt.go             # JWT generate/validate
+│   │   ├── database/
+│   │   │   ├── connect.go          # DB connection + pooling
+│   │   │   ├── migrate.go          # CREATE TABLE IF NOT EXISTS
+│   │   │   └── store.go            # All SQL queries (Store struct)
+│   │   ├── generator/              # Copied from refine-temp (unchanged)
+│   │   │   ├── generator.go
+│   │   │   ├── operations.go
+│   │   │   └── ranges.go
+│   │   ├── handlers/
+│   │   │   ├── auth.go             # Signup, Login, Logout, GetCurrentUser
+│   │   │   ├── auth_middleware.go   # JWT cookie extraction middleware
+│   │   │   ├── emails.go           # Email signup (adapted from Lambda)
+│   │   │   ├── helpers.go          # writeJSON, writeError helpers
+│   │   │   ├── leaderboard.go      # GET /api/leaderboard
+│   │   │   ├── problems.go         # POST /api/problems (adapted)
+│   │   │   ├── sessions.go         # POST /api/sessions
+│   │   │   ├── stats.go            # GET /api/stats
+│   │   │   └── validate.go         # POST /api/validate (adapted)
+│   │   └── models/types.go         # All request/response structs
+│   ├── go.mod
+│   ├── go.sum
+│   └── Makefile
+├── frontend/
+│   ├── src/
+│   │   ├── main.tsx                # BrowserRouter + AuthProvider wrapper
+│   │   ├── App.tsx                 # Routes definition
+│   │   ├── contexts/AuthContext.tsx # Auth state management
+│   │   ├── components/
+│   │   │   ├── Header.tsx          # Auth-aware header
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Squares.tsx
+│   │   │   ├── ProtectedRoute.tsx  # Redirect to /login if no user
+│   │   │   ├── Leaderboard.tsx     # Global + personal top 5
+│   │   │   └── MathGame/
+│   │   │       ├── index.tsx
+│   │   │       ├── GameConfig.tsx
+│   │   │       ├── GamePlay.tsx
+│   │   │       └── GameResults.tsx
+│   │   ├── pages/
+│   │   │   ├── PlayPage.tsx
+│   │   │   ├── LoginPage.tsx
+│   │   │   ├── SignupPage.tsx
+│   │   │   └── DashboardPage.tsx
+│   │   ├── services/api.ts         # All API calls + credentials: include
+│   │   ├── types/index.ts          # All TypeScript interfaces
+│   │   ├── lib/utils.ts
+│   │   └── index.css
+│   └── (vite config, tailwind config, tsconfig, etc.)
+└── deploy/
+    ├── Caddyfile
+    ├── refine-api.service          # systemd unit
+    ├── .env.example
+    ├── deploy.sh                   # Build + SCP + restart
+    └── backup.sh                   # pg_dump to S3
+
+
+13. SCORING
+-----------
+score = correct_answers * 10  (unchanged from current implementation)
+
+
+14. ENVIRONMENT VARIABLES
+--------------------------
+Backend (.env):
+  DATABASE_URL=postgres://user:pass@localhost:5432/refine?sslmode=disable
+  JWT_SECRET=<random-64-char-string>
+  FRONTEND_URL=https://refine.yourdomain.com   (for CORS origin)
+  PORT=8080
+
+Frontend (.env):
+  VITE_API_URL=https://refine.yourdomain.com   (Caddy proxies /api/*)
+
+
+15. CORS POLICY
+---------------
+Allowed origins: FRONTEND_URL env var (exact match).
+Allowed methods: GET, POST, OPTIONS.
+Allowed headers: Content-Type, Authorization, Origin, Accept.
+Allow credentials: true (required for cookies).
+
+
+16. WHAT'S NOT CHANGING
+------------------------
+- Problem generation logic (generator package)
+- Seed-based stateless validation
+- Difficulty ranges
+- Division even-division guarantee
+- Scoring formula (correct * 10)
+- Canvas animated background (Squares.tsx)
+- Tailwind + shadcn/ui styling approach
+- email_signups table
