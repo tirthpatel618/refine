@@ -22,6 +22,10 @@ func generateSubtraction(rng *rand.Rand, min, max, id int) models.Problem {
 	num1 := rng.Intn(max-min+1) + min
 	num2 := rng.Intn(max-min+1) + min
 
+	if num1 < num2 {
+		num1, num2 = num2, num1
+	}
+
 	return models.Problem{
 		ID:       id,
 		Num1:     num1,

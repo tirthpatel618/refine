@@ -4,6 +4,7 @@ node_modules/
 # Build output
 refine-v2/frontend/dist/
 refine-v2/deploy/refine-api
+refine-v2/deploy/deploy.sh
 
 # Environment / secrets
 .env
